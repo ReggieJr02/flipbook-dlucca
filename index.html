@@ -9,11 +9,11 @@
       margin: 0;
       background: #000;
       font-family: sans-serif;
-      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
 
     #book {
@@ -25,10 +25,10 @@
     }
 
     #controls {
+      text-align: center;
       position: absolute;
       top: 10px;
       width: 100%;
-      text-align: center;
       z-index: 100;
     }
 
@@ -43,27 +43,36 @@
       font-weight: bold;
     }
 
+    button:hover {
+      background: #6e4d2c;
+    }
+
+    /* 📱 MODO MÓVIL */
     @media (max-width: 768px) {
 
       body {
-        background: #000;
+        height: 100vh;
+        overflow: hidden;
       }
 
       #book {
+        width: 100vw !important;
+        height: 100vh !important;
         background: #000;
         box-shadow: none;
       }
 
+      /* Botones abajo en móvil */
       #controls {
-        bottom: 10px;
+        bottom: 8px;
         top: auto;
       }
 
+      /* Las páginas del PDF que son imágenes se ajustan */
       #book img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #000;
+        object-fit: cover !important;
+        width: 100% !important;
+        height: 100% !important;
       }
     }
   </style>
@@ -77,7 +86,7 @@
 
   <div id="book"></div>
 
-  <!-- LIBRERÍAS -->
+  <!-- LIBRERÍAS LOCALES -->
   <script src="jquery.min.js"></script>
   <script src="turn.min.js"></script>
   <script src="pdf.js"></script>
@@ -85,7 +94,7 @@
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
 
-    const url = "carta.pdf";
+    const url = "carta.pdf";   // tu PDF
 
     const loading = pdfjsLib.getDocument(url);
     loading.promise.then(function(pdf) {
@@ -118,46 +127,27 @@
           page.style.width = "100%";
           page.style.height = "100%";
           page.innerHTML = `
-            <img src="${img}">
+            <img src="${img}" 
+                 style="width:100%; height:100%; object-fit:contain;">
           `;
           $("#book").append(page);
         });
 
-        inicializarLibro();
+        const isMobile = window.innerWidth < 768;
+
+        $("#book").turn({
+          width: isMobile ? window.innerWidth : 900,
+          height: isMobile ? window.innerHeight : 600,
+          display: isMobile ? "single" : "double",
+          autoCenter: true,
+          elevation: 80,
+          gradients: true
+        });
+
       });
     });
-
-    function inicializarLibro() {
-
-      const isMobile = window.innerWidth < 768;
-
-      // Altura real visible en móvil
-      let alturaReal = window.visualViewport
-        ? window.visualViewport.height
-        : window.innerHeight;
-
-      $("#book").css({
-        width: isMobile ? window.innerWidth + "px" : "900px",
-        height: isMobile ? alturaReal + "px" : "600px"
-      });
-
-      $("#book").turn({
-        width: isMobile ? window.innerWidth : 900,
-        height: isMobile ? alturaReal : 600,
-        display: isMobile ? "single" : "double",
-        autoCenter: true,
-        elevation: 80,
-        gradients: true
-      });
-    }
-
-    // Si gira pantalla o aparece barra de navegador → recalcular
-    window.addEventListener("resize", () => {
-      $("#book").turn("destroy");
-      inicializarLibro();
-    });
-
   </script>
 
 </body>
 </html>
+
