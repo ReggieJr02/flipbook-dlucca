@@ -16,6 +16,7 @@
       height: 100vh;
     }
 
+    /* Contenedor del libro */
     #book {
       width: 900px;
       height: 600px;
@@ -24,6 +25,7 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
+    /* Botones de navegación */
     #controls {
       position: absolute;
       top: 10px;
@@ -43,12 +45,13 @@
       font-weight: bold;
     }
 
-    /* 🔥 PC: sin zoom */
+    /* 🚫 En PC: NO hay zoom */
     #book img {
       transform: none !important;
+      transform-origin: center !important;
     }
 
-    /* 📱 Móvil: ajuste automático */
+    /* 📱 En móvil */
     @media (max-width: 768px) {
 
       body {
@@ -83,7 +86,7 @@
 
   <div id="book"></div>
 
-  <!-- LIBRERÍAS -->
+  <!-- Librerías -->
   <script src="jquery.min.js"></script>
   <script src="turn.min.js"></script>
   <script src="pdf.js"></script>
@@ -93,6 +96,7 @@
 
     const url = "carta.pdf";
 
+    // Cargar PDF
     const loading = pdfjsLib.getDocument(url);
     loading.promise.then(function(pdf) {
 
@@ -123,9 +127,7 @@
           const page = document.createElement("div");
           page.style.width = "100%";
           page.style.height = "100%";
-          page.innerHTML = `
-            <img src="${img}">
-          `;
+          page.innerHTML = `<img src="${img}">`;
           $("#book").append(page);
         });
 
@@ -133,31 +135,33 @@
       });
     });
 
+    /* Inicializar flipbook */
     function inicializarLibro() {
 
       const isMobile = window.innerWidth < 768;
-      let alturaReal = window.visualViewport
+      let realHeight = window.visualViewport
         ? window.visualViewport.height
         : window.innerHeight;
 
       $("#book").css({
         width: isMobile ? window.innerWidth + "px" : "900px",
-        height: isMobile ? alturaReal + "px" : "600px"
+        height: isMobile ? realHeight + "px" : "600px"
       });
 
       $("#book").turn({
         width: isMobile ? window.innerWidth : 900,
-        height: isMobile ? alturaReal : 600,
+        height: isMobile ? realHeight : 600,
         display: isMobile ? "single" : "double",
         autoCenter: true,
         elevation: 80,
         gradients: true
       });
 
+      // 🔥 SOLO aplicar zoom si es móvil
       if (isMobile) autoScaleMobile();
     }
 
-    /* 📱 AUTOESCALADO PERFECTO EN MÓVIL */
+    /* Autoescala para móvil */
     function autoScaleMobile() {
       const img = document.querySelector("#book img");
       if (!img) return;
@@ -173,13 +177,14 @@
       });
     }
 
-    // Recalcular si cambia orientación o barra del navegador
+    // Recalcular al rotar o cambiar ventana
     window.addEventListener("resize", () => {
       $("#book").turn("destroy");
       inicializarLibro();
     });
-
   </script>
 
 </body>
 </html>
+
+
