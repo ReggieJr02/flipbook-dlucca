@@ -1,188 +1,139 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Flipbook 3D</title>
+<meta charset="UTF-8">
+<title>Flipbook 3D</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    font-family: sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+  }
 
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      font-family: sans-serif;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  #book {
+    width: 1200px;
+    height: 800px;
+    background: #000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
 
-    /* Contenedor del libro */
+  /* Botones de navegación */
+  #controls {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    text-align: center;
+  }
+
+  #controls button {
+    padding: 8px 12px;
+    margin: 0 4px;
+    border: none;
+    background: #8c6239;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #book img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transform-origin: top center;
+  }
+
+  @media (max-width: 768px) {
     #book {
-      width: 900px;
-      height: 600px;
-      margin: auto;
-      background: #000;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
-
-    /* Botones de navegación */
-    #controls {
-      position: absolute;
-      top: 10px;
       width: 100%;
-      text-align: center;
-      z-index: 100;
+      height: 100%;
+      box-shadow: none;
     }
-
-    button {
-      padding: 8px 12px;
-      margin: 0 4px;
-      border: none;
-      background: #8c6239;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
+    #controls {
+      top: 10px;
     }
-
-    /* 🚫 En PC: NO hay zoom */
-    #book img {
-      transform: none !important;
-      transform-origin: center !important;
+    #controls button {
+      padding: 6px 10px;
     }
-
-    /* 📱 En móvil */
-    @media (max-width: 768px) {
-
-      body {
-        background: #000;
-      }
-
-      #book {
-        background: #000;
-        box-shadow: none;
-      }
-
-      #controls {
-        bottom: 10px;
-        top: auto;
-      }
-
-      #book img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #000;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
 
-  <div id="controls">
-    <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
-    <button onclick="$('#book').turn('next')">Siguiente ➡</button>
-  </div>
+<div id="book"></div>
 
-  <div id="book"></div>
+<!-- Botones de navegación -->
+<div id="controls">
+  <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
+  <button onclick="$('#book').turn('next')">Siguiente ➡</button>
+</div>
 
-  <!-- Librerías -->
-  <script src="jquery.min.js"></script>
-  <script src="turn.min.js"></script>
-  <script src="pdf.js"></script>
+<script src="jquery.min.js"></script>
+<script src="turn.min.js"></script>
+<script src="pdf.js"></script>
 
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
+const pdfUrl = "carta.pdf";
 
-    const url = "carta.pdf";
+pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+  const pagesPromises = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    pagesPromises.push(
+      pdf.getPage(i).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        return page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise
+          .then(() => canvas.toDataURL());
+      })
+    );
+  }
 
-    // Cargar PDF
-    const loading = pdfjsLib.getDocument(url);
-    loading.promise.then(function(pdf) {
-
-      const pages = [];
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        pages.push(
-          pdf.getPage(i).then(function(page) {
-
-            const viewport = page.getViewport({ scale: 1.5 });
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            return page.render({
-              canvasContext: context,
-              viewport: viewport
-            }).promise.then(() => canvas.toDataURL());
-          })
-        );
-      }
-
-      Promise.all(pages).then(images => {
-
-        images.forEach(img => {
-          const page = document.createElement("div");
-          page.style.width = "100%";
-          page.style.height = "100%";
-          page.innerHTML = `<img src="${img}">`;
-          $("#book").append(page);
-        });
-
-        inicializarLibro();
-      });
+  Promise.all(pagesPromises).then(images => {
+    images.forEach(imgData => {
+      const pageDiv = document.createElement("div");
+      pageDiv.innerHTML = `<img src="${imgData}">`;
+      $("#book").append(pageDiv);
     });
+    inicializarLibro();
+  });
+});
 
-    /* Inicializar flipbook */
-    function inicializarLibro() {
+function inicializarLibro() {
+  const isMobile = window.innerWidth < 768;
+  const width = isMobile ? window.innerWidth : 1200;
+  const height = isMobile ? window.innerHeight : 800;
 
-      const isMobile = window.innerWidth < 768;
-      let realHeight = window.visualViewport
-        ? window.visualViewport.height
-        : window.innerHeight;
+  $("#book").css({ width: width + "px", height: height + "px" });
 
-      $("#book").css({
-        width: isMobile ? window.innerWidth + "px" : "900px",
-        height: isMobile ? realHeight + "px" : "600px"
-      });
+  $("#book").turn({
+    width,
+    height,
+    display: isMobile ? "single" : "double",
+    autoCenter: true,
+    elevation: 100,
+    gradients: true,
+    acceleration: true
+  });
+}
 
-      $("#book").turn({
-        width: isMobile ? window.innerWidth : 900,
-        height: isMobile ? realHeight : 600,
-        display: isMobile ? "single" : "double",
-        autoCenter: true,
-        elevation: 80,
-        gradients: true
-      });
-
-      // 🔥 SOLO aplicar zoom si es móvil
-      if (isMobile) autoScaleMobile();
-    }
-
-    /* Autoescala para móvil */
-    function autoScaleMobile() {
-      const img = document.querySelector("#book img");
-      if (!img) return;
-
-      const screenH = window.innerHeight;
-      const pageH = img.naturalHeight;
-
-      const scale = Math.min(1, screenH / pageH);
-
-      document.querySelectorAll("#book img").forEach(i => {
-        i.style.transform = `scale(${scale})`;
-        i.style.transformOrigin = "top center";
-      });
-    }
-
-    // Recalcular al rotar o cambiar ventana
-    window.addEventListener("resize", () => {
-      $("#book").turn("destroy");
-      inicializarLibro();
-    });
-  </script>
+window.addEventListener("resize", () => {
+  const width = window.innerWidth < 768 ? window.innerWidth : 1200;
+  const height = window.innerWidth < 768 ? window.innerHeight : 800;
+  $("#book").turn("size", width, height);
+});
+</script>
 
 </body>
 </html>
