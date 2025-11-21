@@ -16,7 +16,6 @@
       height: 100vh;
     }
 
-    /* Contenedor del libro */
     #book {
       width: 900px;
       height: 600px;
@@ -25,7 +24,6 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
-    /* Botones de navegación */
     #controls {
       position: absolute;
       top: 10px;
@@ -43,37 +41,6 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
-    }
-
-    /* 🚫 En PC: NO hay zoom */
-    #book img {
-      transform: none !important;
-      transform-origin: center !important;
-    }
-
-    /* 📱 En móvil */
-    @media (max-width: 768px) {
-
-      body {
-        background: #000;
-      }
-
-      #book {
-        background: #000;
-        box-shadow: none;
-      }
-
-      #controls {
-        bottom: 10px;
-        top: auto;
-      }
-
-      #book img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #000;
-      }
     }
   </style>
 </head>
@@ -96,7 +63,6 @@
 
     const url = "carta.pdf";
 
-    // Cargar PDF
     const loading = pdfjsLib.getDocument(url);
     loading.promise.then(function(pdf) {
 
@@ -127,64 +93,26 @@
           const page = document.createElement("div");
           page.style.width = "100%";
           page.style.height = "100%";
-          page.innerHTML = `<img src="${img}">`;
+          page.innerHTML = `<img src="${img}" style="width:100%; height:100%;">`;
           $("#book").append(page);
         });
 
-        inicializarLibro();
+        $("#book").turn({
+          width: 900,
+          height: 600,
+          display: "double",
+          autoCenter: true,
+          elevation: 80,
+          gradients: true
+        });
+
       });
-    });
-
-    /* Inicializar flipbook */
-    function inicializarLibro() {
-
-      const isMobile = window.innerWidth < 768;
-      let realHeight = window.visualViewport
-        ? window.visualViewport.height
-        : window.innerHeight;
-
-      $("#book").css({
-        width: isMobile ? window.innerWidth + "px" : "900px",
-        height: isMobile ? realHeight + "px" : "600px"
-      });
-
-      $("#book").turn({
-        width: isMobile ? window.innerWidth : 900,
-        height: isMobile ? realHeight : 600,
-        display: isMobile ? "single" : "double",
-        autoCenter: true,
-        elevation: 80,
-        gradients: true
-      });
-
-      // 🔥 SOLO aplicar zoom si es móvil
-      if (isMobile) autoScaleMobile();
-    }
-
-    /* Autoescala para móvil */
-    function autoScaleMobile() {
-      const img = document.querySelector("#book img");
-      if (!img) return;
-
-      const screenH = window.innerHeight;
-      const pageH = img.naturalHeight;
-
-      const scale = Math.min(1, screenH / pageH);
-
-      document.querySelectorAll("#book img").forEach(i => {
-        i.style.transform = `scale(${scale})`;
-        i.style.transformOrigin = "top center";
-      });
-    }
-
-    // Recalcular al rotar o cambiar ventana
-    window.addEventListener("resize", () => {
-      $("#book").turn("destroy");
-      inicializarLibro();
     });
   </script>
 
 </body>
 </html>
+
+
 
 
