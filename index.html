@@ -50,33 +50,32 @@
     /* 📱 MODO MÓVIL */
     @media (max-width: 768px) {
 
-      body {
-        height: 100vh;
-        overflow: hidden;
-        background: #000;
-      }
+  body {
+    height: calc(100vh + 60px);
+    overflow: hidden;
+    background: #000;
+  }
 
-      #book {
-        width: 100vw !important;
-        height: calc(100vh - 70px) !important;
-        background: #000;
-        box-shadow: none;
-      }
+  #book {
+    width: 100vw !important;
+    height: calc(100vh + 60px) !important;
+    background: #000;
+    box-shadow: none;
+  }
 
-      /* Botones abajo */
-      #controls {
-        bottom: 8px;
-        top: auto;
-      }
+  #controls {
+    bottom: 8px;
+    top: auto;
+  }
 
-      /* Mantener imagen completa sin cortar */
-      #book img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: contain !important;
-        background: #000;
-      }
-    }
+  #book img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    background: #000;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -152,3 +151,4 @@
 
 </body>
 </html>
+
