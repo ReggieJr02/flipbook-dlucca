@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flipbook 3D Optimizado</title>
+  <title>Flipbook 3D Ajustado</title>
   <style>
     body {
       margin: 0;
@@ -15,7 +15,6 @@
       height: 100vh;
     }
 
-    /* Contenedor del libro */
     #book {
       width: 900px;
       height: 600px;
@@ -24,7 +23,6 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
-    /* Botones de navegación */
     #controls {
       position: absolute;
       top: 10px;
@@ -49,6 +47,7 @@
       height: 100%;
       object-fit: contain;
       display: block;
+      transform-origin: top center;
     }
 
     @media (max-width: 768px) {
@@ -73,20 +72,16 @@
 
   <div id="book"></div>
 
-  <!-- Librerías -->
   <script src="jquery.min.js"></script>
   <script src="turn.min.js"></script>
   <script src="pdf.js"></script>
 
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
-
     const pdfUrl = "carta.pdf";
 
-    // Cargar PDF
     pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
       const pagesPromises = [];
-
       for (let i = 1; i <= pdf.numPages; i++) {
         pagesPromises.push(
           pdf.getPage(i).then(page => {
@@ -112,15 +107,13 @@
 
     function inicializarLibro() {
       const isMobile = window.innerWidth < 768;
-      const realHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       const width = isMobile ? window.innerWidth : 900;
-      const height = isMobile ? realHeight : 600;
+      const height = isMobile ? window.innerHeight : 600;
 
       $("#book").css({ width: width + "px", height: height + "px" });
-
       $("#book").turn({
-        width: width,
-        height: height,
+        width,
+        height,
         display: isMobile ? "single" : "double",
         autoCenter: true,
         elevation: 100,
@@ -128,34 +121,27 @@
         acceleration: true
       });
 
-      if (isMobile) autoScaleMobile();
+      // Ajustar escala en cualquier dispositivo
+      autoScalePages(width, height);
     }
 
-    function autoScaleMobile() {
+    function autoScalePages(containerW, containerH) {
       const images = document.querySelectorAll("#book img");
-      if (!images.length) return;
-
-      const screenW = window.innerWidth;
-      const screenH = window.innerHeight;
-
       images.forEach(img => {
-        const scale = Math.min(screenW / img.naturalWidth, screenH / img.naturalHeight, 1);
+        const scale = Math.min(containerW / img.naturalWidth, containerH / img.naturalHeight, 1);
         img.style.transform = `scale(${scale})`;
-        img.style.transformOrigin = "top center";
       });
     }
 
-    // Ajuste al redimensionar ventana (sin destruir todo)
     window.addEventListener("resize", () => {
-      const isMobile = window.innerWidth < 768;
-      const width = isMobile ? window.innerWidth : 900;
-      const height = isMobile ? window.innerHeight : 600;
-
+      const width = window.innerWidth < 768 ? window.innerWidth : 900;
+      const height = window.innerWidth < 768 ? window.innerHeight : 600;
       $("#book").turn("size", width, height);
-      if (isMobile) autoScaleMobile();
-      else document.querySelectorAll("#book img").forEach(i => i.style.transform = "scale(1)");
+      autoScalePages(width, height);
     });
   </script>
 </body>
 </html>
+
+
 
