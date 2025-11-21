@@ -16,17 +16,24 @@
     position: relative;
   }
 
+  /* Contenedor del libro */
+  #book-container {
+    position: relative;
+  }
+
   #book {
-    width: 1200px;
-    height: 800px;
+    width: 900px;
+    height: 600px;
     background: #000;
     box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
   }
 
   /* Botones de navegación */
   #controls {
     position: absolute;
-    top: -50px;
+    top: -50px; /* un poco arriba del flipbook */
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
@@ -37,7 +44,7 @@
     padding: 8px 12px;
     margin: 0 4px;
     border: none;
-    background: #8c6239;
+    background: rgba(140, 98, 57, 0.9);
     color: white;
     border-radius: 6px;
     cursor: pointer;
@@ -52,6 +59,7 @@
     transform-origin: top center;
   }
 
+  /* Móvil */
   @media (max-width: 768px) {
     #book {
       width: 100%;
@@ -69,12 +77,14 @@
 </head>
 <body>
 
-<div id="book"></div>
+<div id="book-container">
+  <div id="book"></div>
 
-<!-- Botones de navegación -->
-<div id="controls">
-  <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
-  <button onclick="$('#book').turn('next')">Siguiente ➡</button>
+  <!-- Botones de navegación -->
+  <div id="controls">
+    <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
+    <button onclick="$('#book').turn('next')">Siguiente ➡</button>
+  </div>
 </div>
 
 <script src="jquery.min.js"></script>
@@ -85,6 +95,7 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
 const pdfUrl = "carta.pdf";
 
+// Cargar PDF
 pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
   const pagesPromises = [];
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -112,8 +123,8 @@ pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
 
 function inicializarLibro() {
   const isMobile = window.innerWidth < 768;
-  const width = isMobile ? window.innerWidth : 1200;
-  const height = isMobile ? window.innerHeight : 800;
+  const width = isMobile ? window.innerWidth : 900;
+  const height = isMobile ? window.innerHeight : 600;
 
   $("#book").css({ width: width + "px", height: height + "px" });
 
@@ -122,16 +133,17 @@ function inicializarLibro() {
     height,
     display: isMobile ? "single" : "double",
     autoCenter: true,
-    elevation: 100,
+    elevation: 80,
     gradients: true,
     acceleration: true
   });
 }
 
 window.addEventListener("resize", () => {
-  const width = window.innerWidth < 768 ? window.innerWidth : 1200;
-  const height = window.innerWidth < 768 ? window.innerHeight : 800;
-  $("#book").turn("size", width, height);
+  const width = window.innerWidth < 768 ? window.innerWidth : 900;
+  const height = window.innerWidth < 768 ? window.innerHeight : 600;
+  $("#book").turn("destroy");
+  inicializarLibro();
 });
 </script>
 
