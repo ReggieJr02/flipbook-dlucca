@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flipbook 3D Ajustado</title>
+  <title>Flipbook 3D con Botones Fuera</title>
   <style>
     body {
       margin: 0;
@@ -25,13 +25,13 @@
       z-index: 1;
     }
 
-    /* Botones de navegación */
+    /* Botones de navegación fuera del PDF */
     #controls {
-      position: absolute;
-      top: -50px; /* un poco más arriba */
+      position: fixed; /* Fijos en pantalla */
+      top: 20px;       /* Ajusta la distancia desde arriba */
       left: 50%;
       transform: translateX(-50%);
-      z-index: 10;
+      z-index: 999;
       text-align: center;
     }
 
@@ -63,7 +63,7 @@
       }
 
       #controls {
-        top: -50px; /* también arriba en móvil */
+        top: 10px;
       }
     }
   </style>
@@ -85,7 +85,6 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
     const pdfUrl = "carta.pdf";
 
-    // Cargar PDF
     pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
       const pagesPromises = [];
       for (let i = 1; i <= pdf.numPages; i++) {
