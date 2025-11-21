@@ -5,47 +5,64 @@
   <title>Flipbook 3D</title>
 
   <style>
+  body {
+    margin: 0;
+    background: #f2f0e8;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  #book {
+    width: 900px;
+    height: 600px;
+    margin: auto;
+    background: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+
+  #controls {
+    text-align: center;
+    margin-bottom: 10px;
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    z-index: 100;
+  }
+
+  button {
+    padding: 8px 12px;
+    margin: 0 4px;
+    border: none;
+    background: #8c6239;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  button:hover {
+    background: #6e4d2c;
+  }
+
+  /* 📱 MOBILE MODE */
+  @media (max-width: 768px) {
+
     body {
-      margin: 0;
-      background: #f2f0e8;
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      height: auto;
+      padding-top: 60px;
     }
 
     #book {
-      width: 900px;
-      height: 600px;
-      margin: auto;
-      background: white;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      width: 100vw !important;
+      height: calc(100vh - 80px) !important;
+      box-shadow: none;
     }
+  }
+</style>
 
-    #controls {
-      text-align: center;
-      margin-bottom: 10px;
-      position: absolute;
-      top: 10px;
-      width: 100%;
-    }
-
-    button {
-      padding: 8px 12px;
-      margin: 0 4px;
-      border: none;
-      background: #8c6239;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #6e4d2c;
-    }
-  </style>
 </head>
 <body>
 
@@ -101,13 +118,14 @@
         });
 
         $("#book").turn({
-          width: 900,
-          height: 600,
-          autoCenter: true,
-          elevation: 80,
-          gradients: true,
-          display: "double"
-        });
+  		width: window.innerWidth < 768 ? window.innerWidth : 900,
+  		height: window.innerHeight < 768 ? window.innerHeight - 80 : 600,
+  		display: window.innerWidth < 768 ? "single" : "double",
+ 		autoCenter: true,
+  		elevation: 80,
+  		gradients: true
+	});
+
 
       });
     });
