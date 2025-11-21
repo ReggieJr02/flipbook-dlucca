@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flipbook 3D con Botones Fuera</title>
+  <title>Flipbook 3D Más Grande</title>
   <style>
     body {
       margin: 0;
@@ -17,18 +17,18 @@
     }
 
     #book {
-      width: 900px;
-      height: 600px;
+      width: 1200px;   /* Más ancho en PC */
+      height: 800px;   /* Más alto en PC */
       background: #000;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       position: relative;
       z-index: 1;
     }
 
-    /* Botones de navegación fuera del PDF */
+    /* Botones de navegación */
     #controls {
-      position: fixed; /* Fijos en pantalla */
-      top: 20px;       /* Ajusta la distancia desde arriba */
+      position: fixed;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 999;
@@ -46,7 +46,6 @@
       font-weight: bold;
     }
 
-    /* Imagen del PDF */
     #book img {
       width: 100%;
       height: 100%;
@@ -61,7 +60,6 @@
         height: 100%;
         box-shadow: none;
       }
-
       #controls {
         top: 10px;
       }
@@ -112,8 +110,8 @@
 
     function inicializarLibro() {
       const isMobile = window.innerWidth < 768;
-      const width = isMobile ? window.innerWidth : 900;
-      const height = isMobile ? window.innerHeight : 600;
+      const width = isMobile ? window.innerWidth : 1200;  // mayor en PC
+      const height = isMobile ? window.innerHeight : 800;  // mayor en PC
 
       $("#book").css({ width: width + "px", height: height + "px" });
 
@@ -139,11 +137,13 @@
     }
 
     window.addEventListener("resize", () => {
-      const width = window.innerWidth < 768 ? window.innerWidth : 900;
-      const height = window.innerWidth < 768 ? window.innerHeight : 600;
+      const width = window.innerWidth < 768 ? window.innerWidth : 1200;
+      const height = window.innerWidth < 768 ? window.innerHeight : 800;
       $("#book").turn("size", width, height);
       autoScalePages(width, height);
     });
   </script>
 </body>
 </html>
+
+
