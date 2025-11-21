@@ -1,170 +1,210 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Flipbook 3D con Zoom Lateral</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      font-family: sans-serif;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      position: relative;
-    }
+<meta charset="UTF-8">
+<title>Flipbook 3D con Zoom en PC</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    font-family: sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+  }
 
+  #book-container {
+    position: relative;
+  }
+
+  #book {
+    width: 1200px;
+    height: 800px;
+    background: #000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Botones de navegación */
+  #controls {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    text-align: center;
+  }
+
+  #controls button {
+    padding: 8px 12px;
+    margin: 0 4px;
+    border: none;
+    background: #8c6239;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* Botones de zoom flotando a la derecha del flipbook en PC */
+  #zoom-controls {
+    position: absolute;
+    top: 50%;
+    right: -60px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+  }
+
+  #zoom-controls button {
+    padding: 8px 12px;
+    border: none;
+    background: #8c6239;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #book img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transform-origin: top center;
+    transition: transform 0.3s;
+  }
+
+  /* Móvil */
+  @media (max-width: 768px) {
     #book {
-      width: 1200px;
-      height: 800px;
-      background: #000;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Contenedor de botones */
-    #controls {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      text-align: center;
-    }
-
-    #controls button {
-      padding: 8px 12px;
-      margin: 0 4px;
-      border: none;
-      background: #8c6239;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #book img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      display: block;
-      transform-origin: top center;
-      transition: transform 0.3s;
+      box-shadow: none;
     }
-
-    @media (max-width: 768px) {
-      #book {
-        width: 100%;
-        height: 100%;
-        box-shadow: none;
-      }
-      #controls {
-        top: 10px;
-      }
-      #controls button {
-        padding: 6px 10px;
-      }
+    #controls {
+      top: 10px;
     }
-  </style>
+    #controls button {
+      padding: 6px 10px;
+    }
+    /* Ocultar botones de zoom en móvil */
+    #zoom-controls {
+      display: none;
+    }
+  }
+</style>
 </head>
 <body>
 
+<div id="book-container">
+  <div id="book"></div>
+
+  <!-- Botones de navegación -->
   <div id="controls">
     <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
     <button onclick="$('#book').turn('next')">Siguiente ➡</button>
+  </div>
+
+  <!-- Botones de Zoom solo en PC -->
+  <div id="zoom-controls">
     <button onclick="zoomIn()">🔍 +</button>
     <button onclick="zoomOut()">🔍 -</button>
   </div>
+</div>
 
-  <div id="book"></div>
+<script src="jquery.min.js"></script>
+<script src="turn.min.js"></script>
+<script src="pdf.js"></script>
 
-  <script src="jquery.min.js"></script>
-  <script src="turn.min.js"></script>
-  <script src="pdf.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
+const pdfUrl = "carta.pdf";
+let zoomLevel = 1;
 
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
-    const pdfUrl = "carta.pdf";
-    let zoomLevel = 1;
+pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+  const pagesPromises = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    pagesPromises.push(
+      pdf.getPage(i).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        return page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise
+          .then(() => canvas.toDataURL());
+      })
+    );
+  }
 
-    pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-      const pagesPromises = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
-        pagesPromises.push(
-          pdf.getPage(i).then(page => {
-            const viewport = page.getViewport({ scale: 1.5 });
-            const canvas = document.createElement("canvas");
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            return page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise
-              .then(() => canvas.toDataURL());
-          })
-        );
-      }
-
-      Promise.all(pagesPromises).then(images => {
-        images.forEach(imgData => {
-          const pageDiv = document.createElement("div");
-          pageDiv.innerHTML = `<img src="${imgData}">`;
-          $("#book").append(pageDiv);
-        });
-        inicializarLibro();
-      });
+  Promise.all(pagesPromises).then(images => {
+    images.forEach(imgData => {
+      const pageDiv = document.createElement("div");
+      pageDiv.innerHTML = `<img src="${imgData}">`;
+      $("#book").append(pageDiv);
     });
+    inicializarLibro();
+  });
+});
 
-    function inicializarLibro() {
-      const isMobile = window.innerWidth < 768;
-      const width = isMobile ? window.innerWidth : 1200;
-      const height = isMobile ? window.innerHeight : 800;
+function inicializarLibro() {
+  const isMobile = window.innerWidth < 768;
+  const width = isMobile ? window.innerWidth : 1200;
+  const height = isMobile ? window.innerHeight : 800;
 
-      $("#book").css({ width: width + "px", height: height + "px" });
+  $("#book").css({ width: width + "px", height: height + "px" });
 
-      $("#book").turn({
-        width,
-        height,
-        display: isMobile ? "single" : "double",
-        autoCenter: true,
-        elevation: 100,
-        gradients: true,
-        acceleration: true
-      });
+  $("#book").turn({
+    width,
+    height,
+    display: isMobile ? "single" : "double",
+    autoCenter: true,
+    elevation: 100,
+    gradients: true,
+    acceleration: true
+  });
 
-      autoScalePages(width, height);
-    }
+  autoScalePages(width, height);
+}
 
-    function autoScalePages(containerW, containerH) {
-      const images = document.querySelectorAll("#book img");
-      images.forEach(img => {
-        const scale = Math.min(containerW / img.naturalWidth, containerH / img.naturalHeight, 1);
-        img.style.transform = `scale(${scale * zoomLevel})`;
-      });
-    }
+function autoScalePages(containerW, containerH) {
+  const images = document.querySelectorAll("#book img");
+  images.forEach(img => {
+    const scale = Math.min(containerW / img.naturalWidth, containerH / img.naturalHeight, 1);
+    img.style.transform = `scale(${scale * zoomLevel})`;
+  });
+}
 
-    function zoomIn() {
-      zoomLevel += 0.2;
-      const width = window.innerWidth < 768 ? window.innerWidth : 1200;
-      const height = window.innerWidth < 768 ? window.innerHeight : 800;
-      autoScalePages(width, height);
-    }
+function zoomIn() {
+  zoomLevel += 0.2;
+  const width = window.innerWidth < 768 ? window.innerWidth : 1200;
+  const height = window.innerWidth < 768 ? window.innerHeight : 800;
+  autoScalePages(width, height);
+}
 
-    function zoomOut() {
-      zoomLevel = Math.max(0.2, zoomLevel - 0.2);
-      const width = window.innerWidth < 768 ? window.innerWidth : 1200;
-      const height = window.innerWidth < 768 ? window.innerHeight : 800;
-      autoScalePages(width, height);
-    }
+function zoomOut() {
+  zoomLevel = Math.max(0.2, zoomLevel - 0.2);
+  const width = window.innerWidth < 768 ? window.innerWidth : 1200;
+  const height = window.innerWidth < 768 ? window.innerHeight : 800;
+  autoScalePages(width, height);
+}
 
-    window.addEventListener("resize", () => {
-      const width = window.innerWidth < 768 ? window.innerWidth : 1200;
-      const height = window.innerWidth < 768 ? window.innerHeight : 800;
-      $("#book").turn("size", width, height);
-      autoScalePages(width, height);
-    });
-  </script>
+window.addEventListener("resize", () => {
+  const width = window.innerWidth < 768 ? window.innerWidth : 1200;
+  const height = window.innerWidth < 768 ? window.innerHeight : 800;
+  $("#book").turn("size", width, height);
+  autoScalePages(width, height);
+});
+</script>
+
 </body>
 </html>
+
 
 
