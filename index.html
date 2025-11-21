@@ -7,7 +7,7 @@
   <style>
     body {
       margin: 0;
-      background: #f2f0e8;
+      background: #000;
       font-family: sans-serif;
       display: flex;
       justify-content: center;
@@ -20,8 +20,8 @@
       width: 900px;
       height: 600px;
       margin: auto;
-      background: white;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      background: #000;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
     #controls {
@@ -52,20 +52,27 @@
 
       body {
         height: 100vh;
-        padding-top: 50px;
         overflow: hidden;
-        background: #000;
       }
 
       #book {
         width: 100vw !important;
-        height: calc(100vh - 60px) !important;
-        box-shadow: none;
+        height: 100vh !important;
         background: #000;
+        box-shadow: none;
       }
 
+      /* Botones abajo en móvil */
       #controls {
-        top: 5px;
+        bottom: 8px;
+        top: auto;
+      }
+
+      /* Las páginas del PDF que son imágenes se ajustan */
+      #book img {
+        object-fit: cover !important;
+        width: 100% !important;
+        height: 100% !important;
       }
     }
   </style>
@@ -79,7 +86,7 @@
 
   <div id="book"></div>
 
-  <!-- LIBRERÍAS -->
+  <!-- LIBRERÍAS LOCALES -->
   <script src="jquery.min.js"></script>
   <script src="turn.min.js"></script>
   <script src="pdf.js"></script>
@@ -126,12 +133,11 @@
           $("#book").append(page);
         });
 
-        // 📱 Si está en móvil -> single
         const isMobile = window.innerWidth < 768;
 
         $("#book").turn({
           width: isMobile ? window.innerWidth : 900,
-          height: isMobile ? window.innerHeight - 60 : 600,
+          height: isMobile ? window.innerHeight : 600,
           display: isMobile ? "single" : "double",
           autoCenter: true,
           elevation: 80,
