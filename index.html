@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flipbook 3D con Zoom Visible</title>
+  <title>Flipbook 3D con Zoom Lateral</title>
   <style>
     body {
       margin: 0;
@@ -33,9 +33,6 @@
       transform: translateX(-50%);
       z-index: 999;
       text-align: center;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 12px;
-      border-radius: 10px;
     }
 
     #controls button {
@@ -66,7 +63,6 @@
       }
       #controls {
         top: 10px;
-        padding: 4px 8px;
       }
       #controls button {
         padding: 6px 10px;
@@ -79,8 +75,8 @@
   <div id="controls">
     <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
     <button onclick="$('#book').turn('next')">Siguiente ➡</button>
-    <button onclick="zoomIn()">🔍 + Zoom</button>
-    <button onclick="zoomOut()">🔍 - Alejar</button>
+    <button onclick="zoomIn()">🔍 +</button>
+    <button onclick="zoomOut()">🔍 -</button>
   </div>
 
   <div id="book"></div>
@@ -170,6 +166,5 @@
   </script>
 </body>
 </html>
-
 
 
