@@ -69,7 +69,10 @@
     left: 50%;
     transform: translateX(-50%);
   }
-
+  #controls button span.arrow {
+    font-size: 1.2em;   /* tamaño igual para ambas flechas */
+    vertical-align: middle; /* alinea la flecha con el texto */
+  }
   #controls button {
     padding: 6px 10px;
     margin: 0; /* los botones ya tienen espacio por gap */
@@ -85,8 +88,8 @@
 
   <!-- Botones de navegación -->
   <div id="controls">
-    <button onclick="$('#book').turn('previous')">⬅ Anterior</button>
-    <button onclick="$('#book').turn('next')">Siguiente ➡</button>
+    <button onclick="$('#book').turn('previous')"><span class="arrow">←</span> Anterior</button>
+    <button onclick="$('#book').turn('next')">Siguiente <span class="arrow">→</span></button>
   </div>
 </div>
 
@@ -152,4 +155,5 @@ window.addEventListener("resize", () => {
 
 </body>
 </html>
+
 
